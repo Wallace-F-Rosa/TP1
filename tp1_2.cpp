@@ -19,23 +19,23 @@ void printImagem(int ** imagem, int c, int l)
 bool validaZero(int **entrada, int **saida, int c, int l, int py, int px)
 {
 	if(py > 0 && px > 0)
-	for(int y = 0; y < py; y++)
-		for(int x = 0; x < px; x++)
-		{
-			if(entrada[y][x] >= 0)
+		for(int y = 0; y < py; y++)
+			for(int x = 0; x < px; x++)
 			{
-				int conta = 0;
-				for(int i = -1; i <=1;i++)
-					if((y+i >= 0) && (y+i < l))
-						for(int j = -1; j <= 1; j++)
-							if((x+j >= 0) && (x +j < c))
-								if(saida[y+i][x+j]==0)
-									conta++;
+				if(entrada[y][x] >= 0)
+				{
+					int conta = 0;
+					for(int i = -1; i <=1;i++)
+						if((y+i >= 0) && (y+i < l))
+							for(int j = -1; j <= 1; j++)
+								if((x+j >= 0) && (x +j < c))
+									if(saida[y+i][x+j]==0)
+										conta++;
 
-				if(conta > 9-entrada[y][x])
-					return false;
+					if(conta > 9-entrada[y][x])
+						return false;
+				}
 			}
-		}
 
 	return true;
 	
@@ -107,7 +107,7 @@ void fill_a_pix(int **entrada, int **saida, int c, int l, int posPreencher)
 	int py = posPreencher / l;
 	int px = posPreencher % l;
 
-	if(entrada[py][px] == 0 || saida[py][px] == 1) //posição já veio preenchida
+	if(entrada[py][px] <= 0 || saida[py][px] == 1) //posição já veio preenchida
 	{
 		if(entrada[py][px] == 0)
 		{
@@ -116,6 +116,7 @@ void fill_a_pix(int **entrada, int **saida, int c, int l, int posPreencher)
 						for(int j = -1; j <= 1; j++)
 							if((px+j >= 0) && (px +j < c))
 								saida[py+i][px+j]=0;
+
 			fill_a_pix(entrada,saida,c,l,posPreencher+2);
 		}
 		else
@@ -124,17 +125,28 @@ void fill_a_pix(int **entrada, int **saida, int c, int l, int posPreencher)
 	}
 	else
 	{
-			
-
-		saida[py][px] = 1;
-		printImagem(saida,c,l);
-		if(valida(entrada,saida,c,l,py,px))
-			fill_a_pix(entrada,saida,c,l,posPreencher + 1);
-		saida[py][px] = 0;
-		if(valida(entrada,saida,c,l,py,px))
-			fill_a_pix(entrada,saida,c,l,posPreencher + 1);
-		else
-			return;
+	
+		for(int i = -1; i <=1;i++)
+			if((py+i >= 0) && (py+i < l))
+				for(int j = -1; j <= 1; j++)
+					if((px+j >= 0) && (px +j < c))
+					{
+						if(saida[py+i][px+j] != 1)
+						{
+							saida[py+i][px+j] = 1;
+							printImagem(saida,c,l);
+							if(valida(entrada,saida,c,l,py,px))
+								fill_a_pix(entrada,saida,c,l,posPreencher + 1);
+						}								
+						saida[py+i][px+j] = 0;
+								
+						if(valida(entrada,saida,c,l,py,px))
+							fill_a_pix(entrada,saida,c,l,posPreencher + 1);
+						else
+							return;
+								
+							
+					}
 			
 	}
 
