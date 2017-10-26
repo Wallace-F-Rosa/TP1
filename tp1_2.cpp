@@ -15,159 +15,166 @@ void printImagem(int ** imagem, int c, int l)
 	}
 }
 
-
-bool validaZero(int **entrada, int **saida, int c, int l, int py, int px)
+bool verificaQuadradosX(int **entrada,int **saida, int c, int l, int py, int px)
 {
-	if(py > 0 && px > 0)
-		for(int y = 0; y < py; y++)
-			for(int x = 0; x < px; x++)
-			{
-				if(entrada[y][x] >= 0)
+	int quadrados = 0, nX=0;
+	for(int i = -1; i <=1;i++)
+		if((py+i >= 0) && (py+i < l))
+			for(int j = -1; j <= 1; j++)
+				if((px+j >= 0) && (px +j < c))
 				{
-					int conta = 0;
-					int quadrados = 0;
-					for(int i = -1; i <=1;i++)
-						if((y+i >= 0) && (y+i < l))
-							for(int j = -1; j <= 1; j++)
-								if((x+j >= 0) && (x +j < c))
-								{
-									if(saida[y+i][x+j]==1)
-										conta++;
-									quadrados++;
-								}
-
-					if(conta < entrada[y][x])
-						return false;
+					quadrados++;
+					if(saida[py+i][px+j] == 0)
+						nX++;
 				}
-			}
-
-	return true;
-	
-
+	return nX > (quadrados - entrada[py][px]);
 }
 
-bool validaQuadrados(int **entrada, int **saida, int c, int l, int py, int px)
+bool verificaQuadradosPintados(int **entrada,int **saida, int c, int l, int py, int px)
 {
-	for(int y = 0; y < py; y++)
-		for(int x = 0; x < px; x++)
-		{
-			if(entrada[y][x] >= 0)
-			{
-				int conta = 0;
-				for(int i = -1; i <=1;i++)
-					if((y+i >= 0) && (y+i < l))
-						for(int j = -1; j <= 1; j++)
-							if((x+j >= 0) && (x +j < c))
-								if(saida[y+i][x+j]==1)
-									conta++;
+	int quadrados = 0;
+	for(int i = -1; i <=1;i++)
+		if((py+i >= 0) && (py+i < l))
+			for(int j = -1; j <= 1; j++)
+				if((px+j >= 0) && (px +j < c))
+					if(saida[py+i][px+j] == 1)
+						quadrados++;
 
-				if(conta > entrada[y][x])
-					return false;
-			}
-		}
-	return true;
+	return quadrados > entrada[py][px];
 }
 
-void fill0e9(int **entrada, int **saida, int c, int l)
+int numQuadradosPintados(int **saida, int c, int l, int py, int px)
 {
-	for(int y = 0; y < l; y++)
-		for(int x = 0; x < c; x++)
+	int quadrados = 0;
+	for(int i = -1; i <=1;i++)
+		if((py+i >= 0) && (py+i < l))
+			for(int j = -1; j <= 1; j++)
+				if((px+j >= 0) && (px +j < c))
+					if(saida[py+i][px+j] == 1)
+						quadrados++;
+
+	return quadrados ;
+}
+
+int numQuadradosSemX(int **saida, int c, int l, int py, int px)
+{
+	int quadrados = 0;
+	for(int i = -1; i <=1;i++)
+		if((py+i >= 0) && (py+i < l))
+			for(int j = -1; j <= 1; j++)
+				if((px+j >= 0) && (px +j < c))
+					if(saida[py+i][px+j] != 0)
+						quadrados++;
+
+	return quadrados;
+}
+
+void preenchePreto(int **saida, int c,int l, int py, int px)
+{
+	//preenche os quadrados de preto
+	for(int i = -1; i <=1;i++)
+		if((py+i >= 0) && (py+i < l))
+			for(int j = -1; j <= 1; j++)
+				if((px+j >= 0) && (px +j < c))
+					if(saida[py+i][px+j] != 0)//onde tem X não pode pintar de preto
+						saida[py+i][px+j] = 1;
+}
+
+
+void preencheX(int **entrada,int **saida, int c,int l, int py, int px)
+{
+	//preenchendo os ponto
+	for(int y = 0; y <= py; y++)
+		for(int x = 0; x <= px; x++)
 		{
-			if(entrada[y][x] == 0)
+			if(entrada[y][x]>0)
 			{
-				for(int i = -1; i <=1;i++)
-					if((y+i >= 0) && (y+i < l))
-						for(int j = -1; j <= 1; j++)
-							if((x+j >= 0) && (x +j < c))
-								saida[y+i][x+j]=0;
-			}
-			if(entrada[y][x] == 9)
-			{
-				for(int i = -1; i <=1;i++)
-					if((y+i >= 0) && (y+i < l))
-						for(int j = -1; j <= 1; j++)
-							if((x+j >= 0) && (x +j < c))
-								saida[y+i][x+j]=1;
+				if(numQuadradosPintados(saida,c,l,py,px) == entrada[y][x])
+					for(int i = -1; i <=1;i++)
+						if((py+i >= 0) && (py+i < l))
+							for(int j = -1; j <= 1; j++)
+								if((px+j >= 0) && (px +j < c))
+									if(saida[py+i][px+j] != 1)
+										saida[py+i][px+j] = 0;
+				
 			}
 		}
-
 }
 
 bool valida(int **entrada, int **saida, int c, int l, int py, int px)
 {
-	return validaQuadrados(entrada,saida,c,l,py,px) && validaZero(entrada,saida,c,l,py,px);
+	bool verificaPintados, verificaX = 0;
+	
 }
 
-void fill_a_pix(int **entrada, int **saida, int c, int l, int posPreencher)
+
+void sol_fill_a_pix(int **entrada, int **saida, int c, int l, int posPreencher)
 {
-	if(posPreencher >= c * l) //imagem já foi preenchida
+	if(posPreencher == c * l) //imagem já foi preenchida
 	{
 		//valida a imagem gerada
-		for(int y = 1; y < l; y++)
-			for(int x = 1; x < c; x++)
+		for(int y = 0; y < l; y++)
+			for(int x = 0; x < c; x++)
 				if(!valida(entrada,saida,c,l,y,x))
-					return;
+					return;		
 			
 		printImagem(saida,c,l); //se for valida, imprime
 		return;
 	}
 
 	int py = posPreencher / l;
-	int px = posPreencher % l;
+	int px = posPreencher % c;
 
-	if(entrada[py][px] <= 0 || saida[py][px] == 1) //posição já veio preenchida
-	{
+	if(entrada[py][px] <=0)
+	{	
 		if(entrada[py][px] == 0)
 		{
 			for(int i = -1; i <=1;i++)
-					if((py+i >= 0) && (py+i < l))
-						for(int j = -1; j <= 1; j++)
-							if((px+j >= 0) && (px +j < c))
-								if(saida[py+i][px+j] != 1)
-									saida[py+i][px+j]=0;
+				if((py+i >= 0) && (py+i < l))
+					for(int j = -1; j <= 1; j++)
+						if((px+j >= 0) && (px +j < c))
+							saida[py + i][px + j] = 0;
 
-			fill_a_pix(entrada,saida,c,l,posPreencher+2);
+			sol_fill_a_pix(entrada,saida,c,l,posPreencher + 2);
 		}
 		else
-			fill_a_pix(entrada,saida,c,l,posPreencher+1);
-		
+			sol_fill_a_pix(entrada,saida,c,l,posPreencher + 1);
 	}
 	else
 	{
-	
-		/*saida[py][px] = 1;
-		//printImagem(saida,c,l);
-		if(valida(entrada,saida,c,l,py,px))
-			fill_a_pix(entrada,saida,c,l,posPreencher + 1);
-		saida[py][px] = 0;
-		if(valida(entrada,saida,c,l,py,px))
-			fill_a_pix(entrada,saida,c,l,posPreencher + 1);
-		return;*/
-						
 		for(int i = -1; i <=1;i++)
 			if((py+i >= 0) && (py+i < l))
 				for(int j = -1; j <= 1; j++)
 					if((px+j >= 0) && (px +j < c))
 					{
-						if(saida[py+i][px+j] != 1)
-						{
-							saida[py+i][px+j] = 1;
-							printImagem(saida,c,l);
-							if(valida(entrada,saida,c,l,py,px))
-								fill_a_pix(entrada,saida,c,l,posPreencher + 1);
-							saida[py+i][px+j] = 0;
-							
-						}								
-						
+						if(saida[py + i][px + j] == -1)
+							saida[py + i][px + j] = 1;
+						preencheX(entrada,saida,c,l,py,px);
 						if(valida(entrada,saida,c,l,py,px))
-						fill_a_pix(entrada,saida,c,l,posPreencher + 1);		
-							else
-								return;
-								
+							sol_fill_a_pix(entrada,saida,c,l,posPreencher + 1);
+						saida[py + i][px + j] = 0;
 					}
-			
 	}
+		
+	return;
 
+}
+
+void fill_a_pix(int **entrada, int **saida, int c, int l)
+{
+	for(int y = 0; y < l; y++)
+		for(int x = 0; x < c; x++)	
+		{
+			if(entrada[y][x] == 0)
+				preencheX(entrada,saida,c,l,y,x);
+			if(entrada[y][x] > 0)
+				if(entrada[y][x] == numQuadradosSemX(saida,c,l,y,x))
+					preenchePreto(saida,c,l,y,x);
+		}
+	
+	sol_fill_a_pix(entrada,saida,c,l,0);
+
+	printImagem(saida,c,l);
 
 }
 
@@ -191,8 +198,7 @@ int main()
 	for(int i = 0; i < l ; i++)
 		for(int j = 0; j < c ; j++)
 		{
-			entrada[i][j] = -1;
-			saida[i][j] = 0;
+			saida[i][j] = -1;
 		}
 
 	for(int y = 0; y < l; y++)
@@ -201,16 +207,7 @@ int main()
 			cin >> entrada[y][x];
 		}
 
-	cout << "Entrada :" <<endl;
-	for(int y = 0; y < l; y++)
-	{
-		for(int x = 0; x < c; x++)
-			cout << entrada[y][x] << " ";
-		cout<<endl;
-	}
-	cout << endl;
-
-	fill_a_pix(entrada,saida,c,l,0);
+	fill_a_pix(entrada,saida,c,l);
 
 	return 0;
 }

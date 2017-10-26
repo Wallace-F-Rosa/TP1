@@ -15,130 +15,142 @@ void printImagem(int ** imagem, int c, int l)
 	}
 }
 
-bool validaSaida(int ** entrada, int **saida,int c, int l)
+bool verificaQuadradosPintados(int **entrada,int **saida, int c, int l, int py, int px)
 {
-	int total_preenchido = 0;
-	for(int y = 0; y < l; y++)
-		for(int x = 0; x < c; x++)
-			if(entrada[y][x] > 0)
-				total_preenchido+= entrada[y][x];
+	/*Função que verifica se o número de quadrados preenchido (quadrados com 1) é maior que o permitido*/
+	int preto = 0;
+	for(int i = -1; i <=1;i++)
+		if((py+i >= 0) && (py+i < l))
+			for(int j = -1; j <= 1; j++)
+				if((px+j >= 0) && (px +j < c))
+					if(saida[py+i][px+j] == 1)//se o quadrado estiver pintado
+						preto++;//adiciona ele ao contador
+					
 
-	int conta = 0;
-	for(int y = 0; y < l; y++)
-		for(int x = 0; x < c; x++)
-			if(saida[y][x] == 1)
-				conta ++;
-	if(conta == total_preenchido)
-		return true;
-
-	return false;
+	//retorna false se quadrados pintados for maior que o permitido retorna true
+	//se não retorna true;
+	return !(entrada[py][px] > preto);
 }
 
-bool validaQuadrados(int **entrada, int **saida, int c, int l)
+bool verificaQuadradosX(int ** entrada,int **saida, int c, int l, int py, int px)
 {
-	for(int y = 0; y < l; y++)
-		for(int x = 0; x < c; x++)
+	/*Função que verifica se o número de X's (quadrados com 0) é maior que o permitido*/
+	int quadrados = 0,X = 0;
+	for(int i = -1; i <=1;i++)
+		if((py+i >= 0) && (py+i < l))
+			for(int j = -1; j <= 1; j++)
+				if((px+j >= 0) && (px +j < c))
+				{
+					quadrados++;
+					if(saida[py+i][px+j] == 0) //se o quadrado não estiver com X (=0))
+						X++;//adiciona ele ao contador
+				}	
+				
+	//retorna false se o número de quadrados pintados for maior que o permitido retorna true
+	//se não retorna false;
+	return !(X  > (quadrados - entrada[py][px]));
+}
+
+bool verificaSaida(int ** entrada,int **saida, int c, int l, int py, int px)
+{
+
+	for(int y = 0; y <= py; y++)
+		for(int x = 0; x <= px; x++)
 		{
 			if(entrada[y][x] >= 0)
-			{
-				int conta = 0;
-				for(int i = -1; i <=1;i++)
-				{
-					if((y+i >= 0) && (y+i < l))
-					{
-						for(int j = -1; j <= 1; j++)
-							if((x+j >= 0) && (x +j < c))
-								if(saida[y+i][x+j]==1)
-									conta++;
-					}
-				}
-
-				if(conta > entrada[y][x])
+				if(!verificaQuadradosPintados(entrada,saida,c,l,y,x) || !verificaQuadradosX(entrada,saida,c,l,y,x))
 					return false;
-			}
 		}
+
 	return true;
 }
 
-void fill0e9(int **entrada, int **saida, int c, int l)
+bool resolve(..., i)
 {
-	for(int y = 0; y < l; y++)
-		for(int x = 0; x < c; x++)
+	if(verificaMapa())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
+	mapa[i/l][i%c] = 1;
+	if(verificaPonto(..., i))
+	{
+		if(resolve(..., i+1))
 		{
-			if(entrada[y][x] == 0)
+			return true;
+		}
+		else
+		{
+			mapa[i/l][i%c] = 0;
+			if(verificaPonto(..., i))
 			{
-				for(int i = -1; i <=1;i++)
-					if((y+i >= 0) && (y+i < l))
-						for(int j = -1; j <= 1; j++)
-							if((x+j >= 0) && (x +j < c))
-								saida[y+i][x+j]=0;
+				if(resolve(..., i+1))
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
 			}
-			if(entrada[y][x] == 9)
+			else
 			{
-				for(int i = -1; i <=1;i++)
-					if((y+i >= 0) && (y+i < l))
-						for(int j = -1; j <= 1; j++)
-							if((x+j >= 0) && (x +j < c))
-								saida[y+i][x+j]=1;
+				return false;
 			}
 		}
-
+	}
+	else
+	{
+		mapa[i/l][i%c] = 0;
+		if(verificaPonto(..., i))
+		{
+			if(resolve(..., i+1))
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
 }
 
 void fill_a_pix(int **entrada, int **saida, int c, int l, int posPreencher)
 {
-	if(posPreencher == c * l) //imagem já foi preenchida
+	if(posPreencher == c * l)
 	{
-		//valida a imagem gerada
-		if(validaQuadrados(entrada,saida,c,l) && validaSaida(entrada,saida,c,l))
-			printImagem(saida,c,l); //se for valida, imprime
+		int py = l - 1;
+		int px = c - 1;
+		if(!verificaSaida(entrada,saida,c,l,py,px)
+			return;
+		
+		printImagem(saida,c,l);
 		return;
 	}
 
 	int py = posPreencher / l;
-	int px = posPreencher % l;
+	int px = posPreencher % c;
 
-	if(saida[py][px] != 0) //posição já veio preenchida
-	{
+	saida[py][px] = 1;
+	if(verificaQuadradosPintados(entrada,saida,c,l,py,px))
 		fill_a_pix(entrada,saida,c,l,posPreencher+1);
-	}
 	else
 	{
-		if(entrada[py][px] != 0)
-		{
-			bool vizinho_zero = false;
-			for(int i = -1; i <=1;i++)
-				if((py+i >= 0) && (py+i < l))
-					for(int j = -1; j <= 1; j++)
-						if((px+j >= 0) && (px +j < c))
-							if(entrada[py + i][px + j] == 0)
-								vizinho_zero = true;
-
-			if(vizinho_zero)
-			{
-				saida[py][px] = 0;
-				fill_a_pix(entrada,saida,c,l,posPreencher+1);
-			}
-			else
-			{
-				for(int i = 0; i <= 1; i++)
-				{
-					saida[py][px] = i;
-					if(validaQuadrados(entrada,saida,c,l))
-						fill_a_pix(entrada,saida,c,l,posPreencher+1);
-					saida[py][px] = 0;
-				}
-			}
-		}
-		else // nesse quadrado não deve ter nenhum pixel pintado
-		{
-			saida[py][px] = 0;
-			saida[py][px+1] = 0;
-			fill_a_pix(entrada,saida,c,l,posPreencher+2);
-		}
+		saida[py][px] = 0;
+		if(verificaQuadradosX(entrada,saida,c,l,py,px))
+			fill_a_pix(entrada,saida,c,l,posPreencher+1);
 	}
 
-
+	
 }
 
 int main()
@@ -160,24 +172,15 @@ int main()
 	//preenchendo as matrizes com -1, inclusive as bordas
 	for(int i = 0; i < l; i++)
 		for(int j = 0; j < c; j++)
-		{
-			entrada[i][j] = -1;
-			saida[i][j] = 0;
-		}
+			saida[i][j] = -1;
 
 	for(int y = 0; y < l; y++)
 		for(int x = 0; x < c; x++)
-		{
 			cin >> entrada[y][x];
-		}
 
-	if(validaQuadrados(entrada,entrada,c,l) && validaSaida(entrada,entrada,c,l))
-	{
-		printImagem(entrada,c,l);
-		return 0;
-	}
-	int posInicial = 0;
-	fill_a_pix(entrada,saida,c,l,posInicial);
+	
+	fill_a_pix(entrada,saida,c,l,0);
+
 
 	return 0;
 }
